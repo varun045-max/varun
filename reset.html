@@ -1,0 +1,216 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reset Password - College Notes</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 80px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>Reset Password</h1>
+
+        <label>New Password</label>
+        <input
+            type="password"
+            id="password"
+            placeholder="Enter new password"
+        >
+
+        <label>Confirm Password</label>
+        <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm new password"
+        >
+
+        <button onclick="updatePassword()">
+            Update Password
+        </button>
+
+        <p id="message"></p>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+    const SUPABASE_URL = "https://ptaenwdmcseesgemkywb.supabase.co/rest/v1/";
+    const SUPABASE_KEY = "sb_publishable_HrM8m6Pd482q5sCMa1f0IA_A0pt1i1m";
+
+    const { createClient } = supabase;
+
+    const db = createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+    // Detect password recovery session
+    db.auth.onAuthStateChange(async (event, session) => {
+
+        if (event === "PASSWORD_RECOVERY") {
+
+            document.getElementById("message").innerText =
+                "Enter your new password.";
+
+        }
+
+    });
+
+
+    async function updatePassword() {
+
+        const password =
+            document.getElementById("password").value;
+
+        const confirmPassword =
+            document.getElementById("confirmPassword").value;
+
+        const message =
+            document.getElementById("message");
+
+
+        if (!password || !confirmPassword) {
+
+            message.innerText =
+                "Please enter both password fields.";
+
+            return;
+
+        }
+
+
+        if (password.length < 6) {
+
+            message.innerText =
+                "Password must be at least 6 characters.";
+
+            return;
+
+        }
+
+
+        if (password !== confirmPassword) {
+
+            message.innerText =
+                "Passwords do not match.";
+
+            return;
+
+        }
+
+
+        message.innerText =
+            "Updating password...";
+
+
+        const { error } =
+            await db.auth.updateUser({
+                password: password
+            });
+
+
+        if (error) {
+
+            message.innerText =
+                "Password update failed: " +
+                error.message;
+
+            return;
+
+        }
+
+
+        message.innerText =
+            "✅ Password updated successfully!";
+
+
+        setTimeout(() => {
+
+            window.location.href =
+                "admin.html";
+
+        }, 1500);
+
+    }
+
+</script>
+
+</body>
+</html>
+```
